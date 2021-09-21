@@ -6,6 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	prometheusCommon "github.com/webdevops/go-prometheus-common"
 	"time"
+	"fmt"
 )
 
 type MetricsCollectorIncident struct {
@@ -65,9 +66,17 @@ func (m *MetricsCollectorIncident) Reset() {
 }
 
 func (m *MetricsCollectorIncident) Collect(ctx context.Context, callback chan<- func()) {
+	filterSince := time.Now().Add(- time.Hour * 1)
+	filterUntil := time.Now()
+	
+	fmt.Printf("%v", filterSince)
+	fmt.Printf("%v", filterUntil)
+
 	listOpts := pagerduty.ListIncidentsOptions{}
 	listOpts.Limit = PagerdutyListLimit
-	listOpts.Statuses = []string{"triggered", "acknowledged"}
+	listOpts.Since = filterSince.Format(time.RFC3339)
+	listOpts.Until = filterUntil.Format(time.RFC3339)
+	listOpts.Statuses = []string{"triggered","acknowledged","resolved"}
 	listOpts.Offset = 0
 
 	if len(m.teamListOpt) > 0 {
