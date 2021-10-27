@@ -6,7 +6,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	prometheusCommon "github.com/webdevops/go-prometheus-common"
 	"time"
-	"fmt"
 )
 
 type MetricsCollectorIncident struct {
@@ -34,10 +33,7 @@ func (m *MetricsCollectorIncident) Setup(collector *CollectorGeneral) {
 			"incidentUrl",
 			"incidentNumber",
 			"title",
-			"status",
 			"urgency",
-			"acknowledged",
-			"assigned",
 			"type",
 			"time",
 		},
@@ -66,11 +62,9 @@ func (m *MetricsCollectorIncident) Reset() {
 }
 
 func (m *MetricsCollectorIncident) Collect(ctx context.Context, callback chan<- func()) {
-	filterSince := time.Now().Add(- time.Hour * 1)
-	filterUntil := time.Now()
-	
-	fmt.Printf("%v", filterSince)
-	fmt.Printf("%v", filterUntil)
+	timeNow := time.Now()
+	filterSince := timeNow.Truncate(time.Hour)
+	filterUntil := filterSince.Add(time.Minute * 59)
 
 	listOpts := pagerduty.ListIncidentsOptions{}
 	listOpts.Limit = PagerdutyListLimit
@@ -112,10 +106,7 @@ func (m *MetricsCollectorIncident) Collect(ctx context.Context, callback chan<- 
 				"incidentUrl":    incident.HTMLURL,
 				"incidentNumber": uintToString(incident.IncidentNumber),
 				"title":          incident.Title,
-				"status":         incident.Status,
 				"urgency":        incident.Urgency,
-				"acknowledged":   boolToString(len(incident.Acknowledgements) >= 1),
-				"assigned":       boolToString(len(incident.Assignments) >= 1),
 				"type":           incident.Type,
 				"time":           createdAt.Format(opts.PagerDuty.IncidentTimeFormat),
 			}, createdAt)
