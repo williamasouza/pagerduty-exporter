@@ -2,11 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/PagerDuty/go-pagerduty"
-	"github.com/jessevdk/go-flags"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
-	"github.com/webdevops/pagerduty-exporter/config"
 	"net"
 	"net/http"
 	"os"
@@ -14,6 +9,12 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/PagerDuty/go-pagerduty"
+	"github.com/jessevdk/go-flags"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	log "github.com/sirupsen/logrus"
+	"github.com/webdevops/pagerduty-exporter/config"
 )
 
 const (
@@ -125,7 +126,7 @@ func initPagerDuty() {
 func initMetricCollector() {
 	var collectorName string
 	collectorGeneralList = map[string]*CollectorGeneral{}
-
+	/*  DISABLE SOME FUNCTIONS
 	if !opts.PagerDuty.DisableTeams {
 		collectorName = "Team"
 		if opts.ScrapeTime.Seconds() > 0 {
@@ -168,7 +169,7 @@ func initMetricCollector() {
 	} else {
 		log.WithField("collector", collectorName).Infof("collector disabled")
 	}
-
+	*/
 	collectorName = "OnCall"
 	if opts.ScrapeTimeLive.Seconds() > 0 {
 		collectorGeneralList[collectorName] = NewCollectorGeneral(collectorName, &MetricsCollectorOncall{})
@@ -185,10 +186,11 @@ func initMetricCollector() {
 		log.WithField("collector", collectorName).Infof("collector disabled")
 	}
 
-	collectorName = "Collector"
+	/*collectorName = "Collector"
 	collectorGeneralList[collectorName] = NewCollectorGeneral(collectorName, &MetricsCollectorCollector{})
 	collectorGeneralList[collectorName].Run(time.Duration(10 * time.Second))
 	collectorGeneralList[collectorName].SetIsHidden(true)
+	*/
 }
 
 // start and handle prometheus handler
